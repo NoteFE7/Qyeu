@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Samsung Galaxy Note FE - Ultra Full Kit</title>
+    <style>
+        :root { 
+            --bg: #f5f6fa; --card: #ffffff; --text: #000000; --blue: #007aff; --green: #34c759;
+            --ani: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            --brightness: 100%; --blue-light: 0;
+        }
+        body.dark { --bg: #000000; --card: #1c1c1e; --text: #ffffff; }
+        html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; background: #000; font-family: 'Samsung One', sans-serif; }
+        body { color: var(--text); transition: 0.3s; filter: brightness(var(--brightness)) sepia(var(--blue-light)); }
+
+        /* 📱 Wallpaper & Status */
+        #wallpaper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1000') center/cover; z-index: -1; transition: 0.8s var(--ani); }
+        .app-active #wallpaper, .recents-active #wallpaper { filter: blur(30px) brightness(0.6); transform: scale(1.1); }
+        #statusbar { position: absolute; top: 0; width: 100%; height: 40px; display: flex; justify-content: space-between; padding: 0 20px; font-size: 14px; color: white; align-items: center; z-index: 10000; box-sizing: border-box; cursor: pointer; }
+
+        /* 🔒 Lockscreen */
+        #lockscreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 11000; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 80px 0; background: rgba(0,0,0,0.1); backdrop-filter: blur(15px); transition: 0.8s var(--ani); color: white; }
+        #lockscreen.hide { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+
+        /* 🏠 Home Screen & Widgets */
+        #home-screen { padding: 60px 25px; transition: 0.5s var(--ani); z-index: 100; height: 100vh; box-sizing: border-box; overflow-y: auto; }
+        .app-active #home-screen, .recents-active #home-screen { transform: scale(0.92); opacity: 0; pointer-events: none; }
+        
+        #weather-widget { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 25px; padding: 20px; color: white; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        
+        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-gap: 20px; }
+        .app-icon { display: flex; flex-direction: column; align-items: center; gap: 8px; color: white; cursor: pointer; text-align: center; text-decoration: none; }
+        .icon-box { width: 62px; height: 62px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: 0.2s; background: var(--card); }
+
+        /* 📦 Control Center */
+        #control-center { position: absolute; top: -100%; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(35px); z-index: 12000; transition: 0.5s var(--ani); color: white; padding: 60px 25px; box-sizing: border-box; }
+        #control-center.active { top: 0; }
+        .cc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .cc-btn { display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 0.5; cursor: pointer; }
+        .cc-btn.on { opacity: 1; }
+        .cc-icon { width: 55px; height: 55px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .cc-btn.on .cc-icon { background: var(--blue); }
+
+        /* 📦 App Layers */
+        .app-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding-top: 40px; padding-bottom: 65px; box-sizing: border-box; background: var(--bg); z-index: 500; display: none; opacity: 0; transform: translateY(30px); transition: 0.4s var(--ani); }
+        .app-layer.active { display: block; opacity: 1; transform: translateY(0); z-index: 1000; }
+        .scroll-v { height: 100%; overflow-y: auto; }
+        .app-header { padding: 30px 20px 15px; font-size: 26px; font-weight: bold; }
+        .list-item { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(120,120,120,0.08); cursor: pointer; }
+        .list-item small { display: block; opacity: 0.5; margin-top: 3px; }
+
+        /* 📞 Phone */
+        .phone-tabs { display: flex; justify-content: space-around; padding: 10px 0; border-bottom: 1px solid rgba(120,120,120,0.1); }
+        .tab { opacity: 0.4; cursor: pointer; font-weight: bold; }
+        .tab.active { opacity: 1; color: var(--green); border-bottom: 2px solid var(--green); }
+        .dial-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 280px; margin: 30px auto; }
+        .dial-key { width: 75px; height: 75px; border-radius: 50%; background: rgba(120,120,120,0.1); border: none; font-size: 28px; color: var(--text); cursor: pointer; }
+
+        /* 🎧 Music */
+        #m-bar { position: absolute; bottom: 65px; width: 100%; background: var(--card); padding: 15px; border-top: 1px solid rgba(120,120,120,0.1); box-sizing: border-box; }
+
+        /* 📑 Recents */
+        #recents { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9000; display: none; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); flex-direction: column; align-items: center; justify-content: center; }
+        .recent-card { min-width: 270px; height: 480px; background: var(--card); border-radius: 30px; margin: 0 15px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); transition: 0.3s; touch-action: none; position: relative; }
+
+        /* 🔻 Navbar */
+        #navbar { position: absolute; bottom: 0; width: 100%; height: 65px; display: flex; justify-content: space-around; align-items: center; z-index: 15000; }
+        .nav-btn { background: none; border: none; font-size: 22px; color: white; cursor: pointer; flex: 1; height: 100%; }
+        .app-active .nav-btn, .recents-active .nav-btn { color: var(--nav-icon); }
+    </style>
+</head>
+<body class="dark">
+
+    <div id="wallpaper"></div>
+    <div id="statusbar" onclick="toggleCC(true)"><span>SKT</span><span class="clk">12:30</span><span>🔋 100%</span></div>
+
+    <div id="lockscreen" onclick="unlock()">
+        <div style="text-align:center">
+            <h1 class="clk" style="font-size: 84px; font-weight: 100; margin: 0;">12:30</h1>
+            <p style="font-size: 18px; letter-spacing: 1px;">4월 19일 일요일</p>
+        </div>
+        <div style="margin-bottom: 50px; opacity: 0.6; font-size: 14px;">밀어서 잠금해제</div>
+    </div>
+
+    <div id="control-center" onclick="if(event.target==this) toggleCC(false)">
+        <div class="cc-grid">
+            <div class="cc-btn on"><div class="cc-icon">Wi-Fi</div><span>Wi-Fi</span></div>
+            <div class="cc-btn on"><div class="cc-icon">🔈</div><span>소리</span></div>
+            <div class="cc-btn on"><div class="cc-icon">BT</div><span>블루투스</span></div>
+            <div id="cc-blue-btn" class="cc-btn" onclick="toggleBlueFilter()"><div class="cc-icon">👁️</div><span>블루라이트</span></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); padding:20px; border-radius:20px;">
+            <div style="margin-bottom:10px; font-size:14px;">밝기 조절</div>
+            <input type="range" style="width:100%" oninput="updateBright(this.value)">
+        </div>
+    </div>
+
+    <div id="home-screen">
+        <div id="weather-widget" onclick="window.open('https://www.google.com/search?q=weather')">
+            <div>
+                <div style="font-size: 14px;">경산시</div>
+                <div style="font-size: 32px; font-weight: bold;">18°C</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 24px;">☀️</div>
+                <div style="font-size: 12px;">맑음</div>
+            </div>
+        </div>
+
+        <div class="app-grid">
+            <div class="app-icon" onclick="openApp('phone', '#34c759', '📞')"><div class="icon-box" style="background:#34c759; color:white;">📞</div><span>전화</span></div>
+            <div class="app-icon" onclick="openApp('internet', '#007aff', '🌐')"><div class="icon-box" style="background:#007aff; color:white;">🌐</div><span>인터넷</span></div>
+            <div class="app-icon" onclick="openApp('music', '#ff2d55', '🎧')"><div class="icon-box" style="background:#ff2d55; color:white;">🎧</div><span>뮤직</span></div>
+            <div class="app-icon" onclick="openApp('store', '#fff', '🛍️')"><div class="icon-box" style="background:#fff; color:#01875f;">🛍️</div><span>Store</span></div>
+            <div class="app-icon" onclick="openApp('settings', '#8e8e93', '⚙️')"><div class="icon-box" style="background:#8e8e93; color:white;">⚙️</div><span>설정</span></div>
+        </div>
+    </div>
+
+    <div id="phone-app" class="app-layer">
+        <div class="phone-tabs">
+            <div class="tab active" onclick="switchPhoneTab('dial')">키패드</div>
+            <div class="tab" onclick="switchPhoneTab('contacts')">연락처</div>
+        </div>
+        <div id="p-dial" class="scroll-v">
+            <div style="height:120px; display:flex; align-items:center; justify-content:center; font-size:42px;" id="dial-txt"></div>
+            <div class="dial-pad">
+                <button class="dial-key" onclick="dial('1')">1</button><button class="dial-key" onclick="dial('2')">2</button><button class="dial-key" onclick="dial('3')">3</button>
+                <button class="dial-key" onclick="dial('4')">4</button><button class="dial-key" onclick="dial('5')">5</button><button class="dial-key" onclick="dial('6')">6</button>
+                <button class="dial-key" onclick="dial('7')">7</button><button class="dial-key" onclick="dial('8')">8</button><button class="dial-key" onclick="dial('9')">9</button>
+                <button class="dial-key" onclick="dial('*')">*</button><button class="dial-key" onclick="dial('0')">0</button><button class="dial-key" onclick="dial('#')">#</button>
+                <div></div><button class="dial-key" style="background:var(--green); color:white" onclick="alert('발신 중...')">📞</button><button class="dial-key" style="background:none" onclick="dial('del')">⌫</button>
+            </div>
+        </div>
+        <div id="p-cont" class="scroll-v" style="display:none; padding:10px;" id="contact-list"></div>
+    </div>
+
+    <div id="internet-app" class="app-layer">
+        <div style="padding:15px;">
+            <div style="background:var(--card); border-radius:20px; padding:12px; display:flex; align-items:center; gap:10px; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+                <span>🌐</span><input type="text" placeholder="검색 또는 주소 입력" style="border:none; background:none; outline:none; flex:1;" onkeypress="if(event.keyCode==13) window.open('https://www.google.com/search?q='+this.value)">
+            </div>
+        </div>
+        <div style="text-align:center; margin-top:100px;">
+            <h1 style="color:var(--blue); font-weight:300;">Samsung Internet</h1>
+            <div class="app-grid" style="padding:40px; grid-gap:30px;">
+                <div onclick="window.open('https://www.google.com')" style="cursor:pointer">Google</div>
+                <div onclick="window.open('https://www.naver.com')" style="cursor:pointer">Naver</div>
+                <div onclick="window.open('https://www.youtube.com')" style="cursor:pointer">YouTube</div>
+                <div onclick="window.open('https://www.samsung.com')" style="cursor:pointer">Samsung</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="music-app" class="app-layer">
+        <div class="app-header">Samsung Music</div>
+        <div class="list-item" onclick="document.getElementById('m-file').click()">+ 음악 파일 추가</div>
+        <input type="file" id="m-file" accept="audio/*" style="display:none" onchange="upMusic(event)">
+        <div class="scroll-v">
+            <div class="list-item" onclick="playA('over_the_horizon_2016.mp3', 'Over the Horizon 2016')">Over the Horizon 2016<small>Samsung Electronics</small></div>
+            <div class="list-item" onclick="playA('over_the_horizon_s8.mp3', 'Over the Horizon 2017')">Over the Horizon 2017<small>Samsung Electronics</small></div>
+            <div id="u-music"></div>
+        </div>
+        <div id="m-bar" style="display:none">
+            <div id="m-tit" style="font-weight:bold; margin-bottom:10px;"></div>
+            <audio id="player" controls style="width:100%"></audio>
+        </div>
+    </div>
+
+    <div id="store-app" class="app-layer">
+        <div class="app-header">Play 스토어</div>
+        <div class="scroll-v">
+            <div class="list-item">
+                <div>Instagram<small>사진 및 동영상</small></div>
+                <button style="background:#01875f; color:white; border:none; padding:8px 15px; border-radius:5px;" onclick="installApp(this, 'Instagram', '📸', 'linear-gradient(45deg,#f09433,#bc1888)', 'https://www.instagram.com')">설치</button>
+            </div>
+            <div class="list-item">
+                <div>YouTube<small>동영상 스트리밍</small></div>
+                <button style="background:#01875f; color:white; border:none; padding:8px 15px; border-radius:5px;" onclick="installApp(this, 'YouTube', '📺', '#ff0000', 'https://www.youtube.com')">설치</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-app" class="app-layer">
+        <div class="app-header">설정</div>
+        <div class="scroll-v">
+            <div class="list-item" onclick="openApp('disp')">디스플레이<small>밝기, 블루라이트 필터</small></div>
+            <div class="list-item" onclick="openApp('info')">소프트웨어 정보<small>빌드 번호, 커널 버전</small></div>
+            <div class="list-item" onclick="document.body.classList.toggle('dark')">다크 모드<small>테마 전환</small></div>
+        </div>
+    </div>
+
+    <div id="disp-app" class="app-layer" style="z-index:2000">
+        <div class="app-header"><span onclick="openApp('settings')">＜</span> 디스플레이</div>
+        <div class="scroll-v">
+            <div class="list-item">밝기 <input type="range" style="flex:1; margin-left:20px;" oninput="updateBright(this.value)"></div>
+            <div class="list-item" onclick="toggleBlueFilter()">블루라이트 필터 <span id="b-stat" style="color:var(--blue)">OFF</span></div>
+        </div>
+    </div>
+
+    <div id="info-app" class="app-layer" style="z-index:2000">
+        <div class="app-header"><span onclick="openApp('settings')">＜</span> 소프트웨어 정보</div>
+        <div class="scroll-v">
+            <div class="list-item">One UI 버전 <span style="opacity:0.5">1.0</span></div>
+            <div class="list-item">모델명 <span style="opacity:0.5">SM-N935S</span></div>
+            <div class="list-item">안드로이드 버전 <span style="opacity:0.5">9.0</span></div>
+            <div class="list-item">빌드 번호 <span style="opacity:0.5">PPR1.180610.011</span></div>
+        </div>
+    </div>
+
+    <div id="recents">
+        <div style="display:flex; overflow-x:auto; width:100%; padding:0 50px;" id="r-list"></div>
+        <button onclick="closeAllRec()" style="margin-top:30px; color:white; background:rgba(255,255,255,0.2); border:none; padding:15px 40px; border-radius:30px; font-weight:bold;">모두 닫기</button>
+    </div>
+
+    <div id="navbar">
+        <button class="nav-btn" onclick="showRecents()">|||</button>
+        <button class="nav-btn" onclick="goHome()">●</button>
+        <button class="nav-btn" onclick="goHome()">＜</button>
+    </div>
+
+    <script>
+        let runningApps = []; 
+        let dStr = "";
+        let bFilt = false;
+
+        function unlock() { document.getElementById('lockscreen').classList.add('hide'); }
+        function toggleCC(s) { document.getElementById('control-center').classList.toggle('active', s); }
+
+        function openApp(id, color, icon, site = null) {
+            if(site && !runningApps.find(a=>a.id===id)) {
+                window.open(site, '_blank');
+                return;
+            }
+            document.body.classList.add('app-active');
+            document.body.classList.remove('recents-active');
+            document.getElementById('recents').style.display = 'none';
+            toggleCC(false);
+            
+            document.querySelectorAll('.app-layer').forEach(l => l.classList.remove('active'));
+            const target = document.getElementById(id + '-app');
+            if(target) {
+                target.style.display = 'block';
+                setTimeout(() => target.classList.add('active'), 10);
+            }
+            if(!['disp','info'].includes(id) && !runningApps.find(a=>a.id===id)) {
+                runningApps.push({id, color, icon, site});
+            }
+        }
+
+        function goHome() {
+            document.body.classList.remove('app-active','recents-active');
+            document.getElementById('recents').style.display = 'none';
+            document.querySelectorAll('.app-layer').forEach(l => {
+                l.classList.remove('active');
+                setTimeout(()=> { if(!l.classList.contains('active')) l.style.display='none' }, 400);
+            });
+        }
+
+        /* 📞 전화 */
+        function dial(k) {
+            if(k==='del') dStr = dStr.slice(0,-1);
+            else if(dStr.length<13) dStr += k;
+            document.getElementById('dial-txt').innerText = dStr;
+        }
+        function switchPhoneTab(t) {
+            document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active', el.innerText===(t==='dial'?'키패드':'연락처')));
+            document.getElementById('p-dial').style.display = t==='dial'?'block':'none';
+            document.getElementById('p-cont').style.display = t==='contacts'?'block':'none';
+        }
+
+        /* 🎧 음악 */
+        function upMusic(e) {
+            const f = e.target.files[0]; if(!f) return;
+            const url = URL.createObjectURL(f);
+            const div = document.createElement('div');
+            div.className = "list-item";
+            div.onclick = () => playA(url, f.name);
+            div.innerHTML = `${f.name}<small>사용자 파일</small>`;
+            document.getElementById('u-music').prepend(div);
+        }
+        function playA(s, t) {
+            const p = document.getElementById('player');
+            document.getElementById('m-tit').innerText = t;
+            p.src = s; document.getElementById('m-bar').style.display = 'block';
+            p.play();
+        }
+
+        /* 🛍️ 설치 및 리다이렉트 기능 */
+        function installApp(btn, name, icon, color, site) {
+            btn.disabled = true; btn.innerText = "설치 중...";
+            let p = 0;
+            const itv = setInterval(() => {
+                p += 10; btn.innerText = p + "%";
+                if(p >= 100) {
+                    clearInterval(itv);
+                    btn.innerText = "열기"; btn.disabled = false;
+                    const id = name.toLowerCase();
+                    if(!document.getElementById('h-'+id)) {
+                        const iconDiv = document.createElement('div');
+                        iconDiv.className = "app-icon"; iconDiv.id = 'h-'+id;
+                        iconDiv.onclick = () => window.open(site, '_blank');
+                        iconDiv.innerHTML = `<div class="icon-box" style="background:${color}; color:white;">${icon}</div><span>${name}</span>`;
+                        document.querySelector('.app-grid').appendChild(iconDiv);
+                    }
+                }
+            }, 150);
+        }
+
+        /* 📑 최근 앱 개별 삭제 (위로 밀기) */
+        function showRecents() {
+            if(runningApps.length===0) return;
+            document.body.classList.add('recents-active');
+            const list = document.getElementById('r-list'); list.innerHTML = "";
+            runningApps.forEach(app => {
+                const card = document.createElement('div');
+                card.className = "recent-card";
+                card.innerHTML = `<div style="padding:15px; background:var(--card); font-weight:bold;">${app.icon} ${app.id.toUpperCase()}</div><div style="flex:1; background:${app.color}22; display:flex; align-items:center; justify-content:center; font-size:60px;">${app.icon}</div>`;
+                
+                let sy = 0;
+                card.addEventListener('touchstart', (e)=> sy = e.touches[0].clientY);
+                card.addEventListener('touchend', (e)=> {
+                    if(sy - e.changedTouches[0].clientY > 100) {
+                        card.style.transform = "translateY(-1000px)";
+                        setTimeout(()=> {
+                            runningApps = runningApps.filter(a=>a.id!==app.id);
+                            card.remove();
+                            if(runningApps.length===0) goHome();
+                        }, 300);
+                    }
+                });
+                card.onclick = (e) => { if(Math.abs(sy - (e.clientY || sy)) < 10) openApp(app.id, app.color, app.icon, app.site) };
+                list.appendChild(card);
+            });
+            document.getElementById('recents').style.display = 'flex';
+        }
+        function closeAllRec() { runningApps = []; goHome(); }
+
+        /* 🔆 시스템 제어 */
+        function updateBright(v) { document.documentElement.style.setProperty('--brightness', v + '%'); }
+        function toggleBlueFilter() {
+            bFilt = !bFilt;
+            document.documentElement.style.setProperty('--blue-light', bFilt ? '15%' : '0');
+            document.getElementById('cc-blue-btn').classList.toggle('on', bFilt);
+            document.getElementById('b-stat').innerText = bFilt ? 'ON' : 'OFF';
+        }
+
+        // 연락처 생성
+        for(let i=1; i<=10; i++) {
+            const d = document.createElement('div'); d.className = "list-item";
+            d.innerHTML = `사용자 ${i}<small>010-1234-567${i}</small>`;
+            document.getElementById('p-cont').appendChild(d);
+        }
+
+        setInterval(() => {
+            const n = new Date();
+            const t = n.getHours().toString().padStart(2,'0')+":"+n.getMinutes().toString().padStart(2,'0');
+            document.querySelectorAll('.clk').forEach(el => el.innerText = t);
+        }, 1000);
+    </script>
+</body>
+</html>
